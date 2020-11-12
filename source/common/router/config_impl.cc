@@ -913,13 +913,15 @@ void RouteEntryImplBase::validateClusters(Upstream::ClusterManager& cm) const {
   // change we will make it so that dynamically loaded route tables do *not* perform CM checks.
   // In the future we might decide to also have a config option that turns off checks for static
   // route tables. This would enable the all CDS with static route table case.
+  // fixfix perf
+  const auto all_clusters = cm.clusters();
   if (!cluster_name_.empty()) {
-    if (!cm.get(cluster_name_)) {
+    if (!all_clusters.hasCluster(cluster_name_)) {
       throw EnvoyException(fmt::format("route: unknown cluster '{}'", cluster_name_));
     }
   } else if (!weighted_clusters_.empty()) {
     for (const WeightedClusterEntrySharedPtr& cluster : weighted_clusters_) {
-      if (!cm.get(cluster->clusterName())) {
+      if (!all_clusters.hasCluster(cluster->clusterName())) {
         throw EnvoyException(
             fmt::format("route: unknown weighted cluster '{}'", cluster->clusterName()));
       }
